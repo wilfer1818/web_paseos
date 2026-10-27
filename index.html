@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html lang="es"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Paseos Perrunos</title>
+<style>
+:root{--bg:#faf7ff;--sf:#fff;--tx:#24192f;--mu:#665a78;--ac:#7c3aed;--on:#fff;--ac2:#ede4fb;--bd:#e2d8f3;--ok:#2e8b57;--er:#c0392b;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#17121f;--sf:#211a2e;--tx:#f1ebfa;--mu:#b3a6c8;--ac:#a78bfa;--on:#17121f;--ac2:#33264d;--bd:#3a2f52;color-scheme:dark}}
+:root[data-theme="dark"]{--bg:#17121f;--sf:#211a2e;--tx:#f1ebfa;--mu:#b3a6c8;--ac:#a78bfa;--on:#17121f;--ac2:#33264d;--bd:#3a2f52;color-scheme:dark}
+*{box-sizing:border-box}html{scroll-behavior:smooth;scroll-padding-top:calc(64px + env(safe-area-inset-top,0px))}
+body{margin:0;background:var(--bg);color:var(--tx);font:16px/1.6 system-ui,-apple-system,"Segoe UI",sans-serif}
+body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset-top,0px);background:var(--sf);z-index:30}
+header{position:sticky;top:env(safe-area-inset-top,0px);z-index:20;background:var(--sf);border-bottom:1px solid var(--bd);padding:8px 14px;display:flex;flex-wrap:wrap;align-items:center;gap:6px 10px}
+.logo{font-weight:800;font-size:19px;cursor:pointer;margin-right:auto}
+nav{display:flex;flex-wrap:wrap;gap:4px}
+nav a,.lk{color:var(--tx);text-decoration:none;padding:5px 10px;border-radius:8px;font-size:14px;cursor:pointer;background:none;border:0}
+nav a:hover,.lk:hover{background:var(--ac2)}
+.acct{background:var(--ac);color:var(--on)!important;font-weight:600}
+main{max-width:1050px;margin:0 auto;padding:18px 16px 70px}
+.hero{background:linear-gradient(135deg,var(--ac2),var(--sf));border:1px solid var(--bd);border-radius:18px;padding:34px 22px;text-align:center}
+.hero h1{margin:0 0 8px;font-size:clamp(28px,6vw,44px)}.hero p{color:var(--mu);max-width:560px;margin:6px auto 16px}
+h2{color:var(--ac);margin:30px 0 12px}h3{margin:0 0 6px}
+.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:14px}
+.card{background:var(--sf);border:1px solid var(--bd);border-radius:14px;padding:16px}
+.card .ic{font-size:34px}.price{font-size:22px;font-weight:700;color:var(--ac)}
+.btn{background:var(--ac);color:var(--on);border:0;border-radius:9px;padding:8px 14px;font:inherit;font-weight:600;cursor:pointer}
+.btn.s{background:var(--ac2);color:var(--tx)}.btn.d{background:var(--er);color:#fff}.btn.sm{padding:4px 10px;font-size:13px}
+input,select,textarea{width:100%;font:inherit;color:var(--tx);background:var(--bg);border:1px solid var(--bd);border-radius:8px;padding:8px;margin:4px 0 10px}
+label{font-size:13px;color:var(--mu)}
+.form{max-width:440px}.row{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
+.tw{overflow-x:auto}table{border-collapse:collapse;width:100%;font-size:14px;min-width:480px}th,td{border-bottom:1px solid var(--bd);padding:7px;text-align:left;vertical-align:top}
+.tag{display:inline-block;background:var(--ac2);border-radius:99px;padding:1px 10px;font-size:12px}
+.tag.ok{background:var(--ok);color:#fff}.tag.er{background:var(--er);color:#fff}
+#toast{position:fixed;left:50%;bottom:calc(20px + env(safe-area-inset-bottom,0px));transform:translateX(-50%);background:var(--tx);color:var(--bg);padding:10px 18px;border-radius:10px;display:none;z-index:40}
+footer{text-align:center;color:var(--mu);font-size:13px;padding:20px}
+</style></head><body>
+<header><span class="logo" onclick="go('home')">🐕 Paseos Perrunos</span><nav id="nav"></nav></header>
+<main id="m"></main><div id="toast"></div>
+<footer>Paseos Perrunos · I.U. Pascual Bravo · Medellín 2026 · Prototipo académico (datos guardados solo en tu navegador)</footer>
+<script>
+const $=s=>document.querySelector(s),esc=s=>String(s??'').replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c])),cop=n=>'$'+Number(n).toLocaleString('es-CO'),
+hs=p=>{let h=5381;for(const c of p)h=(h*33^c.charCodeAt(0))>>>0;return 'h'+h},uid=()=>Math.random().toString(36).slice(2,9);
+let S,V='home',cart={},ed=null;
+const seed=()=>({u:[{id:'a',n:'Administrador',e:'admin@pp.co',p:hs('admin123'),r:'admin'},{id:'w',n:'Carlos Paseador',e:'paseador@pp.co',p:hs('paseo123'),r:'paseador',ver:1}],
+pets:[],pl:[{id:'p1',n:'Básico',d:30,pr:15000,b:'1 paseo de 30 min · reporte con foto',on:1},{id:'p2',n:'Premium',d:60,pr:25000,b:'1 paseo de 60 min · fotos · agua y snack',on:1},{id:'p3',n:'VIP',d:90,pr:40000,b:'90 min · fotos · snack · baño ligero',on:1}],
+pr:[{id:'q1',n:'Croquetas premium 2 kg',c:'Alimento',pr:48000,st:20,on:1},{id:'q2',n:'Correa reforzada',c:'Accesorios',pr:22000,st:15,on:1},{id:'q3',n:'Galletas caninas de avena',c:'Repostería',pr:9000,st:30,on:1},{id:'q4',n:'Torta de cumpleaños para perros',c:'Repostería',pr:35000,st:5,on:1}],
+rs:[],pe:[],po:[],rv:[],ses:null});
+try{S=JSON.parse(localStorage.getItem('pp3'))}catch(e){}if(!S)S=seed();
+const save=()=>{try{localStorage.setItem('pp3',JSON.stringify(S))}catch(e){}};
+const me=()=>S.u.find(u=>u.id===S.ses),toast=t=>{const e=$('#toast');e.textContent=t;e.style.display='block';setTimeout(()=>e.style.display='none',2400)};
+const go=(v,x)=>{V=v;ed=x||null;draw();scrollTo(0,0)},goA=id=>{go('home');setTimeout(()=>document.getElementById(id)?.scrollIntoView(),30)};
+const need=()=>{if(!me()){toast('Inicia sesión primero');go('login');return 0}return 1};
+const pn=id=>S.pl.find(x=>x.id===id)?.n||'—',petn=id=>S.pets.find(x=>x.id===id)?.n||'—',un=id=>S.u.find(x=>x.id===id)?.n||'Sin asignar';
+const stg=s=>`<span class="tag ${s==='finalizada'||s==='entregado'||s==='verificado'?'ok':s==='cancelada'||s==='rechazada'?'er':''}">${s}</span>`;
+function draw(){const u=me(),r=u?.r;
+let n=`<a onclick="goA('servicios')">Servicios</a><a onclick="goA('planes')">Planes</a><a onclick="goA('paseadores')">Paseos</a><a onclick="go('shop')">Pet Shop</a>`;
+if(r==='dueno')n+=`<a onclick="go('pets')">Mis mascotas</a><a onclick="go('reservar')">Reservar</a><a onclick="go('res')">Mis reservas</a><a onclick="go('ped')">Mis pedidos</a>`;
+if(r==='paseador')n+=`<a onclick="go('walks')">Mis paseos</a>`;if(r==='admin')n+=`<a onclick="go('admin')">Administración</a>`;
+n+=u?`<a class="lk">👤 ${esc(u.n.split(' ')[0])}</a><a class="acct" onclick="out()">Cerrar sesión</a>`:`<a class="acct" onclick="go('login')">Mi cuenta</a>`;
+$('#nav').innerHTML=n;$('#m').innerHTML=(VW[V]||VW.home)()}
+function out(){S.ses=null;save();toast('Sesión cerrada');go('login')}
+const VW={
+home:()=>`<div class="hero"><h1>Paseos felices, mascotas tranquilas 🐾</h1><p>Paseadores verificados, guardería, repostería y Pet Shop en un solo lugar. Reserva, sigue tu paseo y califica el servicio.</p><div class="row" style="justify-content:center"><button class="btn" onclick="go('reservar')">Reservar paseo</button><button class="btn s" onclick="go('shop')">Ir al Pet Shop</button></div></div>
+<h2 id="servicios">Nuestros servicios</h2><div class="grid">
+<div class="card"><div class="ic">🦮</div><h3>Paseos</h3><p>Paseadores verificados, con reporte y fotos al finalizar.</p><button class="btn sm" onclick="go('reservar')">Reservar</button></div>
+<div class="card"><div class="ic">🏠</div><h3>Guardería</h3><p>Cuidado y alojamiento temporal bajo supervisión, para períodos más largos.</p><button class="btn sm s" onclick="toast('Escríbenos para coordinar la guardería')">Consultar</button></div>
+<div class="card"><div class="ic">🧁</div><h3>Repostería para mascotas</h3><p>Galletas y tortas para antojos especiales.</p><button class="btn sm" onclick="go('shop')">Ver productos</button></div>
+<div class="card"><div class="ic">🛍️</div><h3>Pet Shop</h3><p>Alimento, accesorios y más, con seguimiento de tu pedido.</p><button class="btn sm" onclick="go('shop')">Comprar</button></div></div>
+<h2 id="planes">Planes de paseo</h2><div class="grid">${S.pl.filter(p=>p.on).map(p=>`<div class="card"><h3>${esc(p.n)}</h3><div class="price">${cop(p.pr)}</div><p>${p.d} min<br>${esc(p.b)}</p><button class="btn sm" onclick="pick('${p.id}')">Elegir plan</button></div>`).join('')}</div>
+<h2 id="paseadores">Cómo funcionan los paseos</h2><div class="grid"><div class="card"><b>1. Regístrate</b><br>Crea tu cuenta y registra a tu mascota.</div><div class="card"><b>2. Reserva</b><br>Elige plan, fecha y hora.</div><div class="card"><b>3. Paseo y reporte</b><br>Un paseador verificado lo realiza y envía fotos.</div><div class="card"><b>4. Califica</b><br>Cuéntanos cómo te fue.</div></div>
+<h3 style="margin-top:20px">Reseñas</h3>${S.po.length?`<div class="grid">${S.po.slice(-6).reverse().map(x=>`<div class="card">${'⭐'.repeat(x.s)}<p>${esc(x.t)}</p><small>Paseador: ${esc(un(x.w))}</small></div>`).join('')}</div>`:'<p style="color:var(--mu)">Aún no hay reseñas. ¡Sé el primero!</p>'}
+<h2>¿Quieres ser paseador?</h2><div class="card form"><label>Nombre completo</label><input id="pn"><label>Correo</label><input id="pe" type="email"><label>Teléfono</label><input id="pt"><label>Cuéntanos tu experiencia</label><textarea id="px" rows="3"></textarea><button class="btn" onclick="postular()">Enviar postulación</button></div>
+<h2>Sobre nosotros</h2><p>Somos un proyecto de la I.U. Pascual Bravo (Medellín) que formaliza el paseo de mascotas con verificación, seguimiento y calificaciones.</p>`,
+login:()=>`<div class="card form"><h3>Iniciar sesión</h3><label>Correo</label><input id="le" type="email"><label>Contraseña</label><input id="lp" type="password"><button class="btn" onclick="login()">Entrar</button> <button class="btn s" onclick="go('reg')">Crear cuenta</button><p style="font-size:12px;color:var(--mu)">Demo: admin@pp.co / admin123 · paseador@pp.co / paseo123</p></div>`,
+reg:()=>`<div class="card form"><h3>Registro</h3><label>Nombre</label><input id="rn"><label>Correo</label><input id="re" type="email"><label>Contraseña (mín. 6)</label><input id="rp" type="password"><button class="btn" onclick="registro()">Registrarme</button> <button class="btn s" onclick="go('login')">Ya tengo cuenta</button></div>`,
+pets:()=>{if(!need())return'';const e=S.pets.find(p=>p.id===ed),L=S.pets.filter(p=>p.o===S.ses);return`<h2>Mis mascotas</h2><div class="card form"><label>Nombre</label><input id="mn" value="${esc(e?.n)}"><label>Raza</label><input id="mr" value="${esc(e?.r)}"><label>Edad (años)</label><input id="ma" type="number" min="0" value="${esc(e?.a)}"><label>Observaciones</label><textarea id="mo">${esc(e?.ob)}</textarea><button class="btn" onclick="savePet()">${e?'Guardar cambios':'Agregar mascota'}</button></div><div class="grid" style="margin-top:14px">${L.map(p=>`<div class="card"><h3>🐶 ${esc(p.n)}</h3>${esc(p.r)} · ${esc(p.a)} años<p>${esc(p.ob)}</p><button class="btn sm s" onclick="go('pets','${p.id}')">Editar</button> <button class="btn sm d" onclick="delPet('${p.id}')">Eliminar</button></div>`).join('')||'<p>Aún no tienes mascotas.</p>'}</div>`},
+reservar:()=>{if(!need())return'';const P=S.pets.filter(p=>p.o===S.ses);if(!P.length)return`<div class="card form">Primero registra una mascota.<br><br><button class="btn" onclick="go('pets')">Registrar mascota</button></div>`;return`<h2>Reservar paseo</h2><div class="card form"><label>Mascota</label><select id="rm">${P.map(p=>`<option value="${p.id}">${esc(p.n)}</option>`).join('')}</select><label>Plan</label><select id="rpl">${S.pl.filter(p=>p.on).map(p=>`<option value="${p.id}" ${p.id===window.sel?'selected':''}>${esc(p.n)} — ${cop(p.pr)}</option>`).join('')}</select><label>Fecha</label><input id="rf" type="date"><label>Hora</label><input id="rh" type="time"><button class="btn" onclick="reservar()">Confirmar reserva</button></div>`},
+res:()=>{if(!need())return'';const L=S.rv.filter(x=>x.o===S.ses).reverse();return`<h2>Mis reservas</h2><div class="tw"><table><tr><th>Mascota</th><th>Plan</th><th>Fecha</th><th>Estado</th><th>Paseador / reporte</th><th></th></tr>${L.map(x=>{const rated=S.po.some(q=>q.r===x.id);return`<tr><td>${esc(petn(x.m))}</td><td>${esc(pn(x.pl))}</td><td>${x.f} ${x.h}</td><td>${stg(x.s)}</td><td>${esc(un(x.w))}${x.rep?`<br><small>📷 ${esc(x.rep)}</small>`:''}</td><td>${x.s==='pendiente'||x.s==='confirmada'?`<button class="btn sm d" onclick="setR('${x.id}','cancelada')">Cancelar</button>`:''}${x.s==='finalizada'&&!rated?`<br><select id="st${x.id}"><option>5</option><option>4</option><option>3</option><option>2</option><option>1</option></select><input id="tx${x.id}" placeholder="Comentario"><button class="btn sm" onclick="rate('${x.id}')">Calificar</button>`:''}${rated?'⭐ calificado':''}</td></tr>`}).join('')||'<tr><td colspan=6>Sin reservas.</td></tr>'}</table></div>`},
+shop:()=>{const L=S.pr.filter(p=>p.on),t=Object.entries(cart).reduce((a,[k,q])=>a+q*S.pr.find(p=>p.id===k).pr,0);return`<h2>Pet Shop</h2><div class="grid">${L.map(p=>`<div class="card"><small>${esc(p.c)}</small><h3>${esc(p.n)}</h3><div class="price">${cop(p.pr)}</div><small>${p.st>0?'Stock: '+p.st:'Agotado'}</small><br><button class="btn sm" ${p.st<1?'disabled':''} onclick="add('${p.id}')">Agregar</button></div>`).join('')}</div>
+<div class="card" style="margin-top:16px"><h3>🛒 Tu pedido</h3>${Object.entries(cart).map(([k,q])=>`<div class="row">${esc(S.pr.find(p=>p.id===k).n)} × ${q} <button class="btn sm s" onclick="rm('${k}')">Quitar</button></div>`).join('')||'<p>Vacío</p>'}<p><b>Total: ${cop(t)}</b></p><button class="btn" onclick="order()">Confirmar pedido</button><p style="font-size:12px;color:var(--mu)">El pago se coordina por fuera (efectivo o transferencia).</p></div>`},
+ped:()=>{if(!need())return'';return`<h2>Mis pedidos</h2><div class="tw"><table><tr><th>Pedido</th><th>Productos</th><th>Total</th><th>Estado</th></tr>${S.pe.filter(x=>x.o===S.ses).reverse().map(x=>`<tr><td>#${x.id}</td><td>${x.it.map(i=>esc(i.n)+' ×'+i.q).join('<br>')}</td><td>${cop(x.t)}</td><td>${stg(x.s)}</td></tr>`).join('')||'<tr><td colspan=4>Sin pedidos.</td></tr>'}</table></div>`},
+walks:()=>{const u=me();if(!u||u.r!=='paseador')return'<p>Acceso solo para paseadores.</p>';if(!u.ver)return'<p>Tu perfil aún no está verificado por el administrador.</p>';return`<h2>Mis paseos asignados</h2><div class="tw"><table><tr><th>Mascota</th><th>Fecha</th><th>Estado</th><th>Acción</th></tr>${S.rv.filter(x=>x.w===u.id).map(x=>`<tr><td>${esc(petn(x.m))}</td><td>${x.f} ${x.h}</td><td>${stg(x.s)}</td><td>${x.s==='confirmada'?`<button class="btn sm" onclick="setR('${x.id}','en curso')">Iniciar</button>`:''}${x.s==='en curso'?`<input id="rp${x.id}" placeholder="Reporte / observaciones (foto: enlace)"><button class="btn sm" onclick="finish('${x.id}')">Finalizar con reporte</button>`:''}</td></tr>`).join('')||'<tr><td colspan=4>Sin paseos asignados.</td></tr>'}</table></div>`},
+admin:()=>{const u=me();if(!u||u.r!=='admin')return'<p>Acceso solo para administradores.</p>';const W=S.u.filter(x=>x.r==='paseador');return`<h2>Administración</h2>
+<h3>Reservas</h3><div class="tw"><table><tr><th>Mascota</th><th>Plan</th><th>Fecha</th><th>Estado</th><th>Asignar paseador</th></tr>${S.rv.map(x=>`<tr><td>${esc(petn(x.m))}</td><td>${esc(pn(x.pl))}</td><td>${x.f} ${x.h}</td><td>${stg(x.s)}</td><td>${x.s==='pendiente'?`<select id="as${x.id}">${W.filter(w=>w.ver).map(w=>`<option value="${w.id}">${esc(w.n)}</option>`).join('')}</select><button class="btn sm" onclick="assign('${x.id}')">Confirmar</button>`:esc(un(x.w))}</td></tr>`).join('')||'<tr><td colspan=5>Sin reservas.</td></tr>'}</table></div>
+<h3 style="margin-top:20px">Planes</h3><div class="tw"><table>${S.pl.map(p=>`<tr><td>${esc(p.n)}</td><td>${p.d} min</td><td>${cop(p.pr)}</td><td>${p.on?'Habilitado':'Deshabilitado'}</td><td><button class="btn sm s" onclick="tg('pl','${p.id}')">${p.on?'Deshabilitar':'Habilitar'}</button></td></tr>`).join('')}</table></div>
+<div class="row"><input id="an" placeholder="Nombre" style="width:130px"><input id="ad" type="number" placeholder="Min" style="width:80px"><input id="ap" type="number" placeholder="Precio" style="width:110px"><input id="ab" placeholder="Beneficios" style="width:200px"><button class="btn sm" onclick="newPlan()">Crear plan</button></div>
+<h3 style="margin-top:20px">Productos</h3><div class="tw"><table>${S.pr.map(p=>`<tr><td>${esc(p.n)}</td><td>${esc(p.c)}</td><td>${cop(p.pr)}</td><td>Stock ${p.st}</td><td>${p.on?'Habilitado':'Deshabilitado'}</td><td><button class="btn sm s" onclick="tg('pr','${p.id}')">${p.on?'Deshabilitar':'Habilitar'}</button></td></tr>`).join('')}</table></div>
+<div class="row"><input id="bn" placeholder="Nombre" style="width:150px"><input id="bc" placeholder="Categoría" style="width:110px"><input id="bp" type="number" placeholder="Precio" style="width:100px"><input id="bs" type="number" placeholder="Stock" style="width:80px"><button class="btn sm" onclick="newProd()">Crear producto</button></div>
+<h3 style="margin-top:20px">Pedidos</h3><div class="tw"><table>${S.pe.map(x=>`<tr><td>#${x.id}</td><td>${esc(un(x.o))}</td><td>${cop(x.t)}</td><td>${stg(x.s)}</td><td>${x.s!=='entregado'?`<button class="btn sm" onclick="nextO('${x.id}')">Avanzar estado</button>`:''}</td></tr>`).join('')||'<tr><td>Sin pedidos.</td></tr>'}</table></div>
+<h3 style="margin-top:20px">Paseadores y postulaciones</h3><div class="tw"><table>${W.map(w=>`<tr><td>${esc(w.n)}</td><td>${esc(w.e)}</td><td>${stg(w.ver?'verificado':'sin verificar')}</td><td><button class="btn sm s" onclick="ver('${w.id}')">${w.ver?'Quitar verificación':'Verificar'}</button></td></tr>`).join('')}${S.po.length?'':''}${S.pe.length?'':''}${S.rs.length?'':''}</table></div>
+<div class="tw"><table>${S.postul?.map(x=>`<tr><td>${esc(x.n)}</td><td>${esc(x.e)}<br>${esc(x.t)}</td><td>${esc(x.x)}</td><td>${stg(x.s)}</td><td>${x.s==='pendiente'?`<button class="btn sm" onclick="postRes('${x.id}',1)">Aprobar</button> <button class="btn sm d" onclick="postRes('${x.id}',0)">Rechazar</button>`:''}</td></tr>`).join('')||'<tr><td>Sin postulaciones.</td></tr>'}</table></div>`}};
+function pick(id){window.sel=id;go('reservar')}
+function login(){const u=S.u.find(x=>x.e===$('#le').value.trim().toLowerCase()&&x.p===hs($('#lp').value));if(!u)return toast('Credenciales incorrectas');S.ses=u.id;save();toast('Bienvenido '+u.n);go(u.r==='admin'?'admin':u.r==='paseador'?'walks':'home')}
+function registro(){const n=$('#rn').value.trim(),e=$('#re').value.trim().toLowerCase(),p=$('#rp').value;if(!n||!/^\S+@\S+\.\S+$/.test(e)||p.length<6)return toast('Revisa los datos');if(S.u.some(x=>x.e===e))return toast('Ese correo ya existe');const u={id:uid(),n,e,p:hs(p),r:'dueno'};S.u.push(u);S.ses=u.id;save();toast('Cuenta creada');go('pets')}
+function savePet(){const n=$('#mn').value.trim();if(!n)return toast('Falta el nombre');const d={n,r:$('#mr').value,a:$('#ma').value,ob:$('#mo').value},e=S.pets.find(p=>p.id===ed);if(e)Object.assign(e,d);else S.pets.push({id:uid(),o:S.ses,...d});save();toast('Mascota guardada');go('pets')}
+function delPet(id){if(S.rv.some(r=>r.m===id&&['pendiente','confirmada','en curso'].includes(r.s)))return toast('Tiene reservas activas');S.pets=S.pets.filter(p=>p.id!==id);save();draw()}
+function reservar(){const f=$('#rf').value,h=$('#rh').value;if(!f||!h)return toast('Elige fecha y hora');if(new Date(f+'T'+h)<new Date())return toast('No se permiten fechas u horas pasadas');S.rv.push({id:uid(),o:S.ses,m:$('#rm').value,pl:$('#rpl').value,f,h,s:'pendiente'});save();toast('Reserva creada');go('res')}
+function setR(id,s){S.rv.find(x=>x.id===id).s=s;save();draw()}
+function finish(id){const r=S.rv.find(x=>x.id===id);r.rep=$('#rp'+id).value||'Paseo completado sin novedades';r.s='finalizada';save();toast('Paseo finalizado');draw()}
+function rate(id){const r=S.rv.find(x=>x.id===id);S.po.push({r:id,w:r.w,s:+$('#st'+id).value,t:$('#tx'+id).value||'Buen servicio'});save();toast('¡Gracias por calificar!');draw()}
+function add(id){const p=S.pr.find(x=>x.id===id);if((cart[id]||0)>=p.st)return toast('Sin más stock');cart[id]=(cart[id]||0)+1;draw()}
+function rm(id){delete cart[id];draw()}
+function order(){if(!need())return;const k=Object.keys(cart);if(!k.length)return toast('Tu pedido está vacío');let t=0;const it=k.map(i=>{const p=S.pr.find(x=>x.id===i);p.st-=cart[i];t+=p.pr*cart[i];return{n:p.n,q:cart[i]}});S.pe.push({id:String(S.pe.length+1001),o:S.ses,it,t,s:'recibido'});cart={};save();toast('Pedido recibido');go('ped')}
+function assign(id){const w=$('#as'+id)?.value;if(!w)return toast('No hay paseadores verificados');const r=S.rv.find(x=>x.id===id);r.w=w;r.s='confirmada';save();draw()}
+function tg(t,id){const x=S[t].find(p=>p.id===id);x.on=x.on?0:1;save();draw()}
+function newPlan(){const n=$('#an').value;if(!n||!$('#ap').value)return toast('Completa el plan');S.pl.push({id:uid(),n,d:+$('#ad').value||30,pr:+$('#ap').value,b:$('#ab').value,on:1});save();draw()}
+function newProd(){const n=$('#bn').value;if(!n||!$('#bp').value)return toast('Completa el producto');S.pr.push({id:uid(),n,c:$('#bc').value||'General',pr:+$('#bp').value,st:+$('#bs').value||0,on:1});save();draw()}
+const FL=['recibido','en preparación','enviado','entregado'];
+function nextO(id){const o=S.pe.find(x=>x.id===id);o.s=FL[FL.indexOf(o.s)+1];save();draw()}
+function ver(id){const w=S.u.find(x=>x.id===id);w.ver=w.ver?0:1;save();draw()}
+function postular(){const n=$('#pn').value.trim(),e=$('#pe').value.trim();if(!n||!/^\S+@\S+\.\S+$/.test(e))return toast('Nombre y correo válidos');(S.postul=S.postul||[]).push({id:uid(),n,e,t:$('#pt').value,x:$('#px').value,s:'pendiente'});save();toast('Postulación enviada');go('home')}
+function postRes(id,ok){const x=S.postul.find(p=>p.id===id);x.s=ok?'aprobada':'rechazada';if(ok)S.u.push({id:uid(),n:x.n,e:x.e.toLowerCase(),p:hs('paseo123'),r:'paseador',ver:0});save();toast(ok?'Aprobada (clave inicial: paseo123, falta verificar)':'Rechazada');draw()}
+draw();
+</script></body></html>
